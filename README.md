@@ -23,3 +23,19 @@ Enhanced from my CS 320 Contact, Task, and Appointment services for CS 499.
   the same results every run.
 - Fixed a bug in the original AppointmentTest, where the long-description
   test also passed a null date, so it was testing the date check instead.
+- ContactService: added a TreeMap keyed by lowercase last name next to the
+  HashMap. Prefix search ("Ph" finds Pham and Phelps) uses subMap in
+  O(log n + k) instead of scanning every contact in O(n).
+- Each last name maps to a set of contacts, so several people can share a
+  last name without overwriting each other in the index. Sets are ordered
+  by contact ID, which never changes, so their order can't go stale.
+- Made Contact.setLastName() package-private, so only ContactService can
+  change a last name and the index can't point to the wrong name.
+- Changed ContactService to throw exceptions like the other two services,
+  instead of returning true or false. updateContact() now validates every
+  value first and changes nothing if any is invalid; the original silently
+  skipped invalid values and still reported success.
+- Wrote each Contact validation rule once and shared it between the
+  constructor and setters, with named constants instead of magic numbers.
+- Fixed two problems in the original ContactServiceTest: testGetContact had
+  no assertion, and the file mixed JUnit 4 and JUnit 5 imports.

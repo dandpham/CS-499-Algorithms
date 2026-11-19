@@ -39,3 +39,23 @@ Enhanced from my CS 320 Contact, Task, and Appointment services for CS 499.
   constructor and setters, with named constants instead of magic numbers.
 - Fixed two problems in the original ContactServiceTest: testGetContact had
   no assertion, and the file mixed JUnit 4 and JUnit 5 imports.
+- TaskService: added a priority level (HIGH, MEDIUM, LOW) and a due date to
+  each task, and a TreeSet sorted by priority, then due date, then ID, next
+  to the HashMap. getNextTask() and completeNextTask() take O(log n)
+  instead of scanning every task in O(n).
+- Chose a TreeSet over a PriorityQueue: a PriorityQueue removes a specific
+  task in O(n), but a TreeSet does it in O(log n). Deleting a task and
+  changing its priority both need that.
+- The ID is the last tie-breaker in the sort order. A TreeSet drops items
+  that compare as equal, so without it, two tasks with the same priority
+  and due date would lose one.
+- Changing a priority or due date removes the task from the TreeSet,
+  changes it, and adds it back. Made setPriority() and setDueDate()
+  package-private so only TaskService can change them.
+- addTask() now checks that the generated ID isn't already in use and
+  returns the new ID. The original could overwrite a task on a collision.
+- getTasks() now returns a read-only view. The original returned the
+  internal map, so outside code could change tasks without the service.
+- Fixed the wrong error message in Task.setName(), removed unused imports,
+  renamed the Tasks field to tasks, and replaced magic numbers with
+  named constants.

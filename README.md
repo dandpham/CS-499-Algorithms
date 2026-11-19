@@ -59,3 +59,34 @@ Enhanced from my CS 320 Contact, Task, and Appointment services for CS 499.
 - Fixed the wrong error message in Task.setName(), removed unused imports,
   renamed the Tasks field to tasks, and replaced magic numbers with
   named constants.
+
+## Big O Comparison
+
+n = number of stored objects, k = number of results returned.
+
+| Operation | Original | Enhanced | Structure used |
+|---|---|---|---|
+| Find by ID | O(1) | O(1) | HashMap (unchanged) |
+| Add or delete | O(1) | O(log n) | HashMap + tree |
+| Check a new appointment for conflicts | Not checked | O(log n) | TreeMap floorEntry / ceilingEntry |
+| Appointments in a date range | O(n) scan | O(log n + k) | TreeMap subMap |
+| Next upcoming appointment | O(n) scan | O(log n) | TreeMap ceilingEntry |
+| Search contacts by last name prefix | O(n) scan | O(log n + k) | TreeMap subMap |
+| List contacts sorted by last name | O(n log n) sort | O(n) | TreeMap (already sorted) |
+| Most urgent task | Not supported | O(log n) | TreeSet first |
+| Change a task's priority | Not supported | O(log n) | TreeSet remove + add |
+
+Trade-offs:
+- Memory: each object is referenced by two structures instead of one.
+- Writes: add and delete went from O(1) to O(log n), because both
+  structures must be updated. Every search that used to scan all objects
+  now jumps straight to its answer, which is worth it because the
+  services are searched far more often than they are changed.
+- Complexity: the two structures must stay in sync. Setters that affect
+  sort order are package-private, and tests confirm that deletes and
+  updates change both structures.
+- TreeSet over PriorityQueue for tasks: a PriorityQueue removes a
+  specific task in O(n); a TreeSet does it in O(log n).
+
+Tests: 30 originally (7 Appointment, 15 Contact, 8 Task), now 94
+(32 Appointment, 31 Contact, 31 Task), all JUnit 5.
